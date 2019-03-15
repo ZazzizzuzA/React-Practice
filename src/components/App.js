@@ -14,6 +14,11 @@ class App extends React.Component {
 
   componentDidMount() {
     const { params } = this.props.match;
+    // first reinstate our localStorage
+    const localStorageRef = localStorage.getItem(params.storeId);
+    if (localStorageRef) {
+      this.setState({ order: JSON.parse(localStorageRef) });
+    }
     this.ref = base.syncState(`${params.storeId}/fishes`, {
       context: this,
       state: 'fishes'
@@ -24,6 +29,11 @@ class App extends React.Component {
     base.removeBinding(this.ref);
   };
 
+  componentDidUpdate() {
+    console.log(this.state.order);
+    localStorage.setItem(this.props.match.params.storeId, JSON.stringify(this.state.order));
+  }
+
   addFish = fish => {
     //1 .Take a copy of the exsiting state
     const fishes = { ...this.state.fishes};
@@ -33,6 +43,25 @@ class App extends React.Component {
     this.setState({
       fishes
     });
+  };
+
+  updateFish = (key, updatedFish) => {
+    // Take a copy of a current state
+    const fishes = { ...this.state.fishes };
+    // 2. Update that state
+    fishes[key] = updatedFish;
+    // 3. Set that to state
+    this.setState({ fishes });
+  };
+
+  deleteFish = (key) => {
+    // 1. take a copy of state
+    const fishes = { ...this.state.fishes };
+    // 2. update the state
+    fishes[key] = null;
+    // 3. update state
+    this.setState({ fishes });
+    console.log(this.state.fishes);
   };
 
   loadSampleFishes = () => {
@@ -48,6 +77,20 @@ class App extends React.Component {
     this.setState({ order });
   }
 
+  deleteFishFromOrder = (key) => {
+    // 1. take a copy of state
+    const order = { ...this.state.order };
+    // 2. update the state
+    if (order[key] > 1) {
+      order[key] = order[key] - 1;
+    } else {
+      delete order[key];
+    }
+    // 3. update state
+    this.setState({ order });
+    console.log(this.state.order);
+  }
+
   render() {
     return (
       <div className="catch-of-the-day">
@@ -57,8 +100,8 @@ class App extends React.Component {
             {Object.keys(this.state.fishes).map(key => <Fish key={key} index={key} details={this.state.fishes[key]} addToOrder={this.addToOrder} />)}
           </ul>
         </div>
-        <Order fishes={this.state.fishes} order={this.state.order} />
-        <Inventory addFish={this.addFish} loadSampleFishes={this.loadSampleFishes} />
+        <Order fishes={this.state.fishes} order={this.state.order}  deleteFishFromOrder={this.deleteFishFromOrder} />
+        <Inventory addFish={this.addFish} updateFish={this.updateFish} loadSampleFishes={this.loadSampleFishes} fishes={this.state.fishes} deleteFish={this.deleteFish}/>
       </div>
     );
   }
