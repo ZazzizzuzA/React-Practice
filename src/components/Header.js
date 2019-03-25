@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 // Для создания компонента достаточно создать обычную функцию, которая вернет содержимое компонента, но при условии, что в этом компоненте не будут задействованы другие этапы цикла жизни компонента кроме render().
 
@@ -19,6 +20,10 @@ const Header = (props) => (
   </h3>
   </header>
   );
+
+Header.propTypes = {
+  tagline: PropTypes.string.isRequired
+}
 
 // class Header extends React.Component {
 //   render() {
